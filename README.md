@@ -57,6 +57,19 @@ SECRET_KEY=your-secret
 
 ---
 
+## ⚙️ Installation & Run
+
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Start the development server:
+   ```bash
+   uvicorn backend.main:app
+   ```
+
+---
+
 ## 💡 To Do
 
 - [ ] Set up React frontend
