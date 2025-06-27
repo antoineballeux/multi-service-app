@@ -75,7 +75,7 @@ def update_booking(session: Session, db_booking: Booking, updated_data: Booking)
     db_booking.phone = updated_data.phone
     db_booking.service_id = updated_data.service_id
     db_booking.message = updated_data.message
-    db_booking.appointment_date = updated_data.appointment_date
+    db_booking.appointment_time = updated_data.appointment_time
 
     session.commit()
     session.refresh(db_booking)
