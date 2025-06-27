@@ -1,6 +1,6 @@
 # 🛠️ Multi-Service App
 
-Full-stack web application for a small business offering various local services (repairs, maintenance, etc.). This project includes a backend built with FastAPI and a React-based frontend (to be integrated soon).
+Full-stack web application for a small business offering various local services (repairs, maintenance, etc.). This project includes a backend built with FastAPI and a React-based frontend.
 
 ---
 
@@ -9,7 +9,7 @@ Full-stack web application for a small business offering various local services 
 - Backend: FastAPI (Python)
 - Database: SQLModel (with SQLite for development)
 - Authentication: Google OAuth (admin-only access)
-- Frontend: React (planned)
+- Frontend: React + Tailwind CSS
 - Deployment-ready: Modular structure for scalability
 
 ---
@@ -30,6 +30,7 @@ multi-service/
 ├── routes/          # Public + admin API endpoints
 ├── auth/            # Google OAuth & admin validation
 ├── crud/            # Database access logic
+├── frontend/        # React + Tailwind CSS client
 └── README.md
 
 ---
@@ -41,7 +42,7 @@ multi-service/
 - ✅ Google OAuth authentication implemented
 - ✅ Admin-only route secured
 - ✅ Service listing endpoint created
-- 🔜 Frontend integration with React
+- ✅ React + Tailwind CSS frontend added
 - 🔜 Admin dashboard UI
 
 ---
@@ -72,7 +73,7 @@ SECRET_KEY=your-secret
 
 ## 💡 To Do
 
-- [ ] Set up React frontend
+- [x] Set up React frontend
 - [ ] Deploy to production (e.g. Vercel + Railway)
 - [ ] Add unit tests
 - [ ] Add contact form or service request form
