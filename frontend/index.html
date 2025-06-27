@@ -115,15 +115,109 @@
       );
     }
 
+    function AdminPanel({ services, setServices, bookings, setBookings, onLogout }) {
+      const [form, setForm] = useState({ name: '', description: '', price: '' });
+
+      function handleChange(e) {
+        setForm({ ...form, [e.target.name]: e.target.value });
+      }
+
+      function addService(e) {
+        e.preventDefault();
+        const payload = { ...form, price: form.price ? parseFloat(form.price) : null };
+        fetch('/services', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+          .then((res) => res.json())
+          .then((newService) => {
+            setServices([...services, newService]);
+            setForm({ name: '', description: '', price: '' });
+          });
+      }
+
+      function deleteService(id) {
+        fetch(`/services/${id}`, { method: 'DELETE' })
+          .then((res) => {
+            if (res.ok) {
+              setServices(services.filter((s) => s.id !== id));
+            }
+          });
+      }
+
+      function deleteBooking(id) {
+        fetch(`/bookings/${id}`, { method: 'DELETE' })
+          .then((res) => {
+            if (res.ok) {
+              setBookings(bookings.filter((b) => b.id !== id));
+            }
+          });
+      }
+
+      return (
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-semibold">Admin Dashboard</h2>
+            <button className="text-blue-600 underline" onClick={onLogout}>Logout</button>
+          </div>
+
+          <section className="space-y-2">
+            <h3 className="text-xl font-medium">Add Service</h3>
+            <form onSubmit={addService} className="space-y-2">
+              <input className="w-full border p-2" name="name" placeholder="Name" value={form.name} onChange={handleChange} required />
+              <input className="w-full border p-2" name="description" placeholder="Description" value={form.description} onChange={handleChange} required />
+              <input className="w-full border p-2" name="price" type="number" step="0.01" placeholder="Price" value={form.price} onChange={handleChange} />
+              <button className="px-4 py-2 bg-blue-600 text-white rounded" type="submit">Add</button>
+            </form>
+          </section>
+
+          <section className="space-y-2">
+            <h3 className="text-xl font-medium">Existing Services</h3>
+            {services.map((s) => (
+              <div key={s.id} className="flex justify-between border p-2">
+                <span>{s.name}</span>
+                <button className="text-red-600" onClick={() => deleteService(s.id)}>Delete</button>
+              </div>
+            ))}
+          </section>
+
+          <section className="space-y-2">
+            <h3 className="text-xl font-medium">Bookings</h3>
+            {bookings.map((b) => (
+              <div key={b.id} className="flex justify-between border p-2 text-sm">
+                <span>{b.name} - {new Date(b.appointment_time).toLocaleString()}</span>
+                <button className="text-red-600" onClick={() => deleteBooking(b.id)}>Delete</button>
+              </div>
+            ))}
+            {!bookings.length && <p>No bookings.</p>}
+          </section>
+        </div>
+      );
+    }
+
     function App() {
       const [services, setServices] = useState([]);
       const [status, setStatus] = useState('');
+      const [isAdmin, setIsAdmin] = useState(false);
+      const [bookings, setBookings] = useState([]);
 
       useEffect(() => {
         fetch('/services')
           .then((res) => res.json())
           .then((data) => setServices(data))
           .catch((err) => console.error(err));
+
+        fetch('/admin')
+          .then((res) => {
+            if (res.ok) {
+              setIsAdmin(true);
+              fetch('/bookings')
+                .then((r) => (r.ok ? r.json() : []))
+                .then((data) => setBookings(data));
+            }
+          })
+          .catch(() => setIsAdmin(false));
       }, []);
 
       function submitBooking(data) {
@@ -145,27 +239,43 @@
           });
       }
 
+      function logout() {
+        window.location.href = '/auth/logout';
+      }
+
       return (
         <div className="space-y-8">
-          <header className="text-center">
+          <header className="text-center space-y-1">
             <h1 className="text-3xl font-bold">Multi-Service App</h1>
-            <p className="text-sm text-gray-600">
-              <a className="underline" href="/auth/login">
-                Admin Login
-              </a>
-            </p>
+            {!isAdmin && (
+              <p className="text-sm text-gray-600">
+                <a className="underline" href="/auth/login">Admin Login</a>
+              </p>
+            )}
           </header>
 
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">Available Services</h2>
-            <ServiceList services={services} />
-          </section>
+          {isAdmin ? (
+            <AdminPanel
+              services={services}
+              setServices={setServices}
+              bookings={bookings}
+              setBookings={setBookings}
+              onLogout={logout}
+            />
+          ) : (
+            <>
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">Available Services</h2>
+                <ServiceList services={services} />
+              </section>
 
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">Book a Service</h2>
-            <BookingForm services={services} onSubmit={submitBooking} />
-            {status && <p className="mt-2">{status}</p>}
-          </section>
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">Book a Service</h2>
+                <BookingForm services={services} onSubmit={submitBooking} />
+                {status && <p className="mt-2">{status}</p>}
+              </section>
+            </>
+          )}
         </div>
       );
     }
